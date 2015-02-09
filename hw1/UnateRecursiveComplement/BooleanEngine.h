@@ -20,11 +20,22 @@ enum VarForm
     TOT_FORM
 };
 
+enum CubeListType
+{
+    CONST0  = 0,
+    CONST1  = 1,
+    TRIVIAL = 2,
+    NORMAL  = 3,
+
+    TOT_TYPE
+};
+
 class Cube
 {
+    friend class CubeList;
     friend ostream& operator<<(ostream& f,const Cube & cube)
     {
-        f << cube._numBinateVar<< " ";
+        f << cube._numVar<< " ";
         for (size_t i = 1;i<cube._slots.size();++i) {
             if(cube._slots[i] == POSITIVE)
                 f << i << " ";
@@ -42,7 +53,8 @@ public:
     vector<VarForm> _slots;
 
 private:
-    size_t _numBinateVar;
+    size_t _numVar;//related var num
+    bool isTautology() { return (_numVar == 0);}
 };
 class CubeList
 {
@@ -58,18 +70,19 @@ class CubeList
 public:
     CubeList(size_t varNum,size_t cubeNum) {
         _pcns.resize(cubeNum,Cube(varNum));
-        _varNum = varNum;
+        _totalVarNum = varNum;
     }
-    CubeList(){}
+    CubeList():_totalVarNum(0){_pcns.resize(0);}
     CubeList cubeComp(CubeList f);
     CubeList cubeAnd(bool inv,size_t splitVar,CubeList f);
-    CubeList cubeOr(bool inv,CubeList f1,CubeList f2);
+    CubeList cubeOr(CubeList f1,CubeList f2);
     CubeList posCofactor(size_t splitVar,CubeList f);
     CubeList negCofactor(size_t splitVar,CubeList f);
 
     vector<Cube> _pcns;
 
 private:
-    size_t _varNum;
+    size_t _totalVarNum;
+    CubeListType checkType()const;
 };
 #endif //BOOL_ENG_H
